@@ -31,8 +31,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--backup-model",
-        default="google/gemini-2.0-flash-exp:free",
-        help="Backup LLM Model (default: google/gemini-2.0-flash-exp:free)",
+        default="meta-llama/llama-3.2-3b-instruct:free",
+        help="Backup LLM Model (default: meta-llama/llama-3.2-3b-instruct:free)",
     )
     parser.add_argument(
         "--redis-url",
@@ -48,7 +48,7 @@ def main() -> None:
         sys.exit(1)
 
     print("=================================================================")
-    print("🚀 INITIALIZING PRODUCTION RELIABILITY GATEWAY WITH OPENROUTER")
+    print("[+] INITIALIZING PRODUCTION RELIABILITY GATEWAY WITH OPENROUTER")
     print("=================================================================")
     print(f"[*] Primary Provider : OpenRouter ({args.primary_model})")
     print(f"[*] Backup Provider  : OpenRouter ({args.backup_model})")
@@ -98,14 +98,13 @@ def main() -> None:
         providers=[primary_p, backup_p],
         breakers=breakers,
         cache=cache,
-        static_fallback="[GATEWAY OFFLINE] All upstream models are temporarily unavailable.",
     )
 
     print("\n--- Test 1: First Query (Real OpenRouter API Call) ---")
     q1 = "What is circuit breaker pattern in distributed systems in 1 sentence?"
     res1 = gateway.complete(q1)
     print(f"[Query]        : {q1}")
-    print(f"[Route Reason] : {res1.route_reason}")
+    print(f"[Route Reason] : {res1.route}")
     print(f"[Provider]     : {res1.provider}")
     print(f"[Latency]      : {res1.latency_ms:.2f} ms")
     print(f"[Response]     : {res1.text.strip()}\n")
@@ -114,7 +113,7 @@ def main() -> None:
     q2 = "What is the circuit breaker pattern in distributed systems in one sentence?"
     res2 = gateway.complete(q2)
     print(f"[Query]        : {q2}")
-    print(f"[Route Reason] : {res2.route_reason}")
+    print(f"[Route Reason] : {res2.route}")
     print(f"[Latency]      : {res2.latency_ms:.2f} ms (INSTANT HIT!)")
     print(f"[Response]     : {res2.text.strip()}\n")
 
@@ -122,12 +121,12 @@ def main() -> None:
     q3 = "My bearer token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9. Explain JWT format."
     res3 = gateway.complete(q3)
     print(f"[Query]        : {q3}")
-    print(f"[Route Reason] : {res3.route_reason}")
+    print(f"[Route Reason] : {res3.route}")
     print(f"[Cached?]      : {cache.get(q3)[0] is not None} (Correctly NOT cached)")
     print(f"[Response]     : {res3.text.strip()[:100]}...\n")
 
     print("=================================================================")
-    print("✅ LIVE DEMO COMPLETED SUCCESSFULLY WITH REAL OPENROUTER LLM")
+    print("[OK] LIVE DEMO COMPLETED SUCCESSFULLY WITH REAL OPENROUTER LLM")
     print("=================================================================")
 
 

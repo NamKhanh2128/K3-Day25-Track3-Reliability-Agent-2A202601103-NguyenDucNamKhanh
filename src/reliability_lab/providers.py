@@ -84,6 +84,7 @@ class OpenRouterProvider:
         payload = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 150,
         }
         data_bytes = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(

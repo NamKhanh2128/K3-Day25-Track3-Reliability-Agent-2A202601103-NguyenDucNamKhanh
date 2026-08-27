@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from typing import Any
+
 from reliability_lab.cache import ResponseCache, SharedRedisCache
 from reliability_lab.circuit_breaker import CircuitBreaker, CircuitOpenError
-from reliability_lab.providers import FakeLLMProvider, ProviderError, ProviderResponse
+from reliability_lab.providers import FakeLLMProvider, OpenRouterProvider, ProviderError, ProviderResponse
 
 
 @dataclass(slots=True)
@@ -23,7 +25,7 @@ class ReliabilityGateway:
 
     def __init__(
         self,
-        providers: list[FakeLLMProvider],
+        providers: list[FakeLLMProvider | OpenRouterProvider | Any],
         breakers: dict[str, CircuitBreaker],
         cache: ResponseCache | SharedRedisCache | None = None,
     ):
