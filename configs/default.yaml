@@ -34,3 +34,9 @@ scenarios:
   - name: all_healthy
     description: "Baseline — both providers healthy"
     provider_overrides: {}
+  - name: primary_degraded_fallback_stress
+    description: "Primary provider down 90%, backup down 30% — stress test cascading fallback and static fallback"
+    provider_overrides:
+      primary: 0.9
+      backup: 0.3
+

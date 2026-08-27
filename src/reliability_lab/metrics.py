@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
 from statistics import median
-from typing import Iterable
 
 from pydantic import BaseModel, Field
 
@@ -53,7 +53,7 @@ class RunMetrics(BaseModel):
             "fallback_success_rate": round(self.fallback_success_rate, 4),
             "cache_hit_rate": round(self.cache_hit_rate, 4),
             "circuit_open_count": self.circuit_open_count,
-            "recovery_time_ms": self.recovery_time_ms,
+            "recovery_time_ms": round(self.recovery_time_ms, 2) if self.recovery_time_ms is not None else None,
             "estimated_cost": round(self.estimated_cost, 6),
             "estimated_cost_saved": round(self.estimated_cost_saved, 6),
             "scenarios": self.scenarios,
@@ -66,13 +66,24 @@ class RunMetrics(BaseModel):
     def write_csv(self, path: str | Path) -> None:
         """Export metrics to CSV format.
 
-        TODO(student): Implement CSV export:
         1. Get report dict via self.to_report_dict()
         2. Flatten the "scenarios" dict: each scenario becomes "scenario_{name}" column
-        3. Write a single-row CSV with csv.DictWriter (import csv at top of file)
+        3. Write a single-row CSV with csv.DictWriter
         4. Create parent directories if needed
         """
-        raise NotImplementedError("TODO: implement write_csv()")
+        import csv
+
+        d = self.to_report_dict()
+        scenarios = d.pop("scenarios", {})
+        flat = dict(d)
+        if isinstance(scenarios, dict):
+            for name, status in scenarios.items():
+                flat[f"scenario_{name}"] = status
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(flat.keys()))
+            writer.writeheader()
+            writer.writerow(flat)
 
 
 def percentile(values: Iterable[float], q: float) -> float:
